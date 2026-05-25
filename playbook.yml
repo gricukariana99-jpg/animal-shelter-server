@@ -1,0 +1,11 @@
+---
+- name: Configure animal shelter server
+  hosts: web
+  become: yes
+
+  roles:
+    - common
+    - mariadb
+    - dolibarr
+    - firewall
+    - backup

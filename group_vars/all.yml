@@ -1,0 +1,12 @@
+---
+project_name: animal-shelter-server
+
+db_name: dolibarr_db
+db_user: dolibarr_user
+db_password: dolibarr_password
+
+dolibarr_dir: /var/www/html/dolibarr
+backup_dir: /mnt/backups/animal-shelter
+scripts_dir: /opt/animal-shelter/scripts
+
+http_port: 80

@@ -1,0 +1,16 @@
+---
+- name: Create backup directory
+  file:
+    path: "{{ backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create scripts directory
+  file:
+    path: "{{ scripts_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'

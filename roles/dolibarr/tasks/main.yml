@@ -1,0 +1,30 @@
+---
+- name: Install Apache, PHP and required modules
+  dnf:
+    name:
+      - httpd
+      - php
+      - php-mysqlnd
+      - php-gd
+      - php-intl
+      - php-mbstring
+      - php-xml
+      - php-zip
+      - php-curl
+      - wget
+      - unzip
+    state: present
+
+- name: Enable and start Apache
+  systemd:
+    name: httpd
+    enabled: yes
+    state: started
+
+- name: Create Dolibarr directory
+  file:
+    path: "{{ dolibarr_dir }}"
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'

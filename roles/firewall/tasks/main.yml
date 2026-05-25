@@ -1,0 +1,12 @@
+---
+- name: Open HTTP service
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

@@ -1,0 +1,19 @@
+---
+- name: Install common packages
+  dnf:
+    name:
+      - git
+      - curl
+      - wget
+      - tar
+      - unzip
+      - python3
+      - python3-pip
+      - firewalld
+    state: present
+
+- name: Enable and start firewalld
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started
