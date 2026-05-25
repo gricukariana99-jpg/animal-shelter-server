@@ -1,4 +1,11 @@
 ---
+- name: Install backup dependencies
+  dnf:
+    name:
+      - mariadb
+      - python3
+    state: present
+
 - name: Create backup directory
   file:
     path: "{{ backup_dir }}"

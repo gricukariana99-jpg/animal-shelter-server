@@ -11,8 +11,7 @@
       - php-xml
       - php-zip
       - php-curl
-      - wget
-      - unzip
+      - git
     state: present
 
 - name: Enable and start Apache
@@ -21,10 +20,61 @@
     enabled: yes
     state: started
 
-- name: Create Dolibarr directory
+- name: Check Dolibarr directory
+  stat:
+    path: "{{ dolibarr_dir }}/htdocs"
+  register: dolibarr_check
+
+- name: Clone Dolibarr from GitHub
+  git:
+    repo: https://github.com/Dolibarr/dolibarr.git
+    dest: "{{ dolibarr_dir }}"
+    version: develop
+    depth: 1
+  when: not dolibarr_check.stat.exists
+
+- name: Create Dolibarr documents directory
   file:
-    path: "{{ dolibarr_dir }}"
+    path: "{{ dolibarr_dir }}/documents"
     state: directory
     owner: apache
     group: apache
     mode: '0755'
+
+- name: Create Dolibarr conf.php
+  file:
+    path: "{{ dolibarr_dir }}/htdocs/conf/conf.php"
+    state: touch
+    owner: apache
+    group: apache
+    mode: '0666'
+
+- name: Create Dolibarr install.lock
+  file:
+    path: "{{ dolibarr_dir }}/documents/install.lock"
+    state: touch
+    owner: apache
+    group: apache
+    mode: '0644'
+
+- name: Set Dolibarr permissions
+  file:
+    path: "{{ dolibarr_dir }}"
+    owner: apache
+    group: apache
+    recurse: yes
+
+- name: Set SELinux context for documents
+  command: chcon -R -t httpd_sys_rw_content_t "{{ dolibarr_dir }}/documents"
+  changed_when: false
+  failed_when: false
+
+- name: Set SELinux context for conf.php
+  command: chcon -t httpd_sys_rw_content_t "{{ dolibarr_dir }}/htdocs/conf/conf.php"
+  changed_when: false
+  failed_when: false
+
+- name: Restart Apache
+  systemd:
+    name: httpd
+    state: restarted
