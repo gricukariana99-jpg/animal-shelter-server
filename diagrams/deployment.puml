@@ -1,0 +1,51 @@
+@startuml
+title Диаграмма развёртывания системы приюта животных
+
+actor "Сотрудник приюта" as user
+
+node "VirtualBox VM\nFedora Linux\nvm1" as vm {
+    node "Apache HTTP Server" as apache
+    node "PHP" as php
+    artifact "Dolibarr\n/var/www/html/dolibarr" as dolibarr
+
+    database "MariaDB\nБД: dolibarr_db" as db
+
+    node "Ansible" as ansible {
+        artifact "playbook.yml" as playbook
+        artifact "roles/common" as common
+        artifact "roles/mariadb" as mariadb
+        artifact "roles/dolibarr" as dolibarr_role
+        artifact "roles/firewall" as firewall
+        artifact "roles/backup" as backup_role
+    }
+
+    node "Python-скрипты\n/opt/animal-shelter/scripts" as scripts {
+        artifact "backup.py" as backup
+        artifact "restore.py" as restore
+        artifact "notify_new_requests.py" as notify
+    }
+
+    folder "Каталог резервных копий\n/mnt/backups/animal-shelter" as backup_dir
+}
+
+user --> apache : HTTP / веб-интерфейс
+apache --> php : выполнение PHP
+php --> dolibarr : приложение
+dolibarr --> db : чтение и запись данных
+
+playbook --> common
+playbook --> mariadb
+playbook --> dolibarr_role
+playbook --> firewall
+playbook --> backup_role
+
+backup --> db : mysqldump
+backup --> backup_dir : SQL-файл
+
+restore --> backup_dir : чтение SQL-файла
+restore --> db : восстановление
+
+notify --> db : SELECT последних заявок
+notify --> backup_dir : new_requests.log
+
+@enduml
